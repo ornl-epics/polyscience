@@ -1,0 +1,13 @@
+file PolyScience.db
+{
+pattern {S, TA, DN}
+        {CG3, SE, PolyScience}
+}
+
+
+file ioc_sns.db
+{
+pattern {IOCNAME}
+        {CG3:SE:PolyScience}
+}
+

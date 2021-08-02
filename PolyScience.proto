@@ -1,0 +1,81 @@
+##################################################
+# General Settings
+##################################################
+
+Terminator = CR;
+ReplyTimeout = 2000;
+locktimeout = 5000;
+readtimeout  = 2000;
+extrainput   = Ignore;
+InTerminator= CR;
+
+###################################################
+# Get functions
+###################################################
+
+WriteEcho {
+   out "SE%i";
+   in "!";
+}
+
+# Read Run Standy Mode 
+ReadRunStandbyMode {
+   out "RO";
+   in "%i";
+}
+
+# Set Run Standy Mode
+WriteRunStandbyMode {
+   out "SO%i";
+}
+
+# Set Temp Setpoint
+WriteSetPoint {
+   out "SS%03i";#sending integer for SP 3 charactes pad with 0	   
+}
+
+
+# Read Temp Setpoint Sent
+ReadSetPoint {
+   out "RS";
+   in "%f";
+}
+
+# Read Actual Temp
+ReadTemp {
+   out "RT";
+   in "%f";
+}
+
+
+# Read Actual Pressure
+ReadPress {
+   out "RP";
+   in "%f";
+}
+
+
+
+# Read Actual Flow
+ReadFlow {
+   out "RL";
+   in "%f";
+}
+
+
+# Read Faults
+ReadFaults {
+   out "RF";
+   in "%f";
+}
+
+
+
+#Read Fluid Level
+ReadFluidLvlSts{
+   out "RX";
+   in "%i";
+}
+
+
+

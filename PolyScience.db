@@ -1,0 +1,158 @@
+
+#Set the chiller Run=1 Standby=0
+record(bo, "$(S):$(TA):$(DN):SetEcho") {
+   info(DESC, "Set Echo ON OFF")
+   field(DTYP, "stream")
+   field(OUT, "@PolyScience.proto WriteEcho PolyScience1")
+   field(ZNAM, "EchoOff")
+   field(ONAM, "EchoON")
+   field(PINI, "YES")
+   field(VAL, "0")
+   info(archive, "Monitor, 00:00:01, VAL")
+}
+              
+
+#Get Status of the chiller Run=1 Standby=0
+record(bi, "$(S):$(TA):$(DN):RunStandbyRead") {
+  info(DESC, "Get Status of Standby or Run")
+  field(DTYP, "stream")
+  field(INP, "@PolyScience.proto ReadRunStandbyMode PolyScience1")
+  field(SCAN, "1 second")  
+  field(ZNAM, "Standby")
+  field(ONAM, "Run")
+  info(archive, "Monitor, 00:00:01, VAL")
+}
+
+#Set the chiller Run=1 Standby=0
+record(bo, "$(S):$(TA):$(DN):RunStandbyWrite") {
+  info(DESC, "Set Standby or Run")
+  info(autosaveFields, "VAL")
+  field(DTYP, "stream")
+  field(OUT, "@PolyScience.proto WriteRunStandbyMode PolyScience1")
+  field(ZNAM, "Standby")
+  field(ONAM, "Run")
+  info(archive, "Monitor, 00:00:01, VAL")
+}
+
+record(ao, "$(S):$(TA):$(DN):SPWrite") {
+  info(DESC, "Set the temp SP for Chiller")
+  info(autosaveFields, "VAL HOPR LOPR HIHI LOLO DRVH DRVL")
+  info(archive, "Monitor, 00:01:00")
+  field(DTYP, "stream")
+  field(OUT, "@PolyScience.proto WriteSetPoint PolyScience1")
+  field(EGU, "C")
+  field(HOPR, "90")
+  field(LOPR, "-5")
+  field(ADEL, "1")
+  field (PREC, "0")
+  field (HIHI, "90")
+  field (LOLO, "-5")
+  field (DRVH, "90")
+  field(DRVL, "-5")
+}
+
+#get the SP sent
+record(ai, "$(S):$(TA):$(DN):SPRead") {
+  info(DESC, "Read the temp SP for Chiller")
+  field(DTYP, "stream")
+  field(INP, "@PolyScience.proto ReadSetPoint PolyScience1")
+  field(SCAN, "1 second")
+  field(EGU, "C")
+  field(PREC, "0")
+  field(ADEL, "1")
+  info(archive, "Monitor, 00:01:00")
+}
+
+record(ai, "$(S):$(TA):$(DN):TempRead") {
+  info(DESC, "Read the Bath Temp")
+  field(DTYP, "stream")
+  field(INP, "@PolyScience.proto ReadTemp PolyScience1")
+  field(SCAN, "1 second")
+  field(EGU, "C")
+  field(PREC, "2")
+  field(ADEL, "1")
+  info(archive, "Monitor, 00:01:00")
+}
+
+#record(ai, "$(S):$(TA):$(DN):PressureRead") {
+#  info(DESC, "Read the Pressure")
+#  field(DTYP, "stream")
+#  field(INP, "@PolyScience.proto ReadPress PolyScience1")
+#  field(SCAN, "1 second")
+#  field(EGU, "psi")
+#  field(PREC, "2")
+#  field(ADEL, "1")
+#  info(archive, "Monitor, 00:01:00")
+#}
+
+record(ai, "$(S):$(TA):$(DN):FlowRead") {
+  info(DESC, "Read the Flow")
+  field(DTYP, "stream")
+  field(INP, "@PolyScience.proto ReadFlow PolyScience1")
+  field(SCAN, "1 second")
+  field(EGU, "lpm")
+  field(PREC, "2")
+  field(ADEL, "1")
+  info(archive, "Monitor, 00:01:00")
+}
+
+record(ai, "$(S):$(TA):$(DN):FaultRaw") {
+  info(DESC, "Read the Faults")
+  field(DTYP, "stream")
+  field(INP, "@PolyScience.proto ReadFaults PolyScience1")
+  field(SCAN, "1 second")
+  field(PREC, "0")
+  field(ADEL, "1")
+  info(archive, "Monitor, 00:01:00")
+  field(FLNK, "$(S):$(TA):$(DN):FaultRead.PROC")
+}
+
+record(calc, "$(S):$(TA):$(DN):FaultRead") {
+   field(INPA, "$(S):$(TA):$(DN):FaultRaw CP NMS")
+   field(INPB, "$(S):$(TA):$(DN):FaultRaw.SEVR CP NMS")
+   field(CALC, "(A=18)|(A=0)&(B=0)?0:1")
+   info(archive, "Monitor, 00:00:10, VAL")
+   field(HIHI, "1")
+   field(HHSV, "MAJOR")
+}
+
+record(calc, "$(S):$(TA):$(DN):OK")
+{
+    field(INPA, "$(S):$(TA):$(DN):FaultRead NMS CPP")
+    field(INPB, "$(S):$(TA):$(DN):AlarmEnable NMS CPP")
+    field(CALC, "(!A&!B)|(!A&B)|(A&!B)")
+    field(HIHI, "1")
+    field(LOLO, "0")
+    field(HHSV, "NO_ALARM")
+    field(LLSV, "MAJOR")
+    field(PINI, "YES")
+}
+
+record(bi, "$(S):$(TA):$(DN):AlarmEnable")
+{
+        field(DESC, "Summary Alarm Enable")
+        field(ZNAM, "AlarmDisabled")
+        field(ONAM, "AlarmEnabled")
+        field(ASG, "ALWAYS")
+        field(PINI, "YES")
+        info(autosaveFields, "VAL")
+        field(ZSV, "MINOR")
+
+}
+
+
+
+#record(bi, "$(S):$(TA):$(DN):FluidLevelStatus") {
+#  info(DESC, "Get Fluid Level Status")
+#    field(DTYP, "stream")
+#    field(INP, "@PolyScience.proto ReadFluidLvlSts PolyScience1")
+#    field(SCAN, "1 second")
+#    field(ZNAM, "LevelOK")
+#    field(ONAM, "LevelLow")
+#    info(archive, "Monitor, 00:00:01, VAL")
+#}
+              
+
+
+
+
